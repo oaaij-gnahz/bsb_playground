@@ -15,14 +15,16 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 # import matplotlib.cm as cm
 
-if os.path.exists("data.csv"):
-    data = pd.read_csv("data.csv")
+csv_path = "data_kyle_cgso81.csv"
+if os.path.exists(csv_path):
+    data = pd.read_csv(csv_path)
 else:
     player_df = playerid_lookup("hendricks", "kyle")
     player_id = player_df['key_mlbam'].values[0]
     data = statcast_pitcher("2019-05-03", "2019-05-03", player_id=player_id)
+    data.to_csv(csv_path)
 #%%
-# axis: X: horizontal (pitcher to his right), Y: vertical (plate to mound), Z: depth (how much above ground)
+# axis: X: horizontal (pitcher to his right), Y: depth (plate to mound), Z: vertical (how much above ground)
 release_pos = data[['release_pos_x', 'release_pos_y', 'release_pos_z']]
 pitch_types = data['pitch_type']
 sz_bot = data['sz_bot']
@@ -92,6 +94,8 @@ fig.suptitle('Release Velocity by Pitch Type')
 fig.tight_layout()
 fig.savefig("release_velo_hist_by_pitchtype.png", dpi=300)
 plt.close()
-#%% release velocity vs. location
-
+#%% release velocity
+release_velocities = data.groupby('pitch_type').agg({'vx0': ['mean', 'std'], 'vy0': ['mean', 'std'], 'vz0': ['mean', 'std'], "release_spin_rate": ['mean', 'std']})
+print("Aggregated Release Velocities by Pitch Type")
+print(release_velocities)
 #%% release 
