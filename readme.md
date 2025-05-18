@@ -11,6 +11,10 @@ For learning about & playing with MLB stats via PyBaseball API.
 Example result:
 ![img_pitch_trajectorys](./assets/pitch_trajectory_sim.png)
 
+Takeaway: the physics-based model captures the general movement of different pitch grips. However, it fails to capture some details.
+For example, MLB pitches may have very late break so that all pitches look as similar as possible coming out of pitcher's hand and in the early stage of the trajectory.
+Some weakness of this model may be: (1) assumption of constant spin (2) no fitting process for model parameters among others.
+
 `sim_vs_statcast.py` Visualize & compare:
 * trajectories simulated using the physics mentioned above vs.
 * StatCast acceleration values which also considers all those factors and approximates a constant acceleration.
