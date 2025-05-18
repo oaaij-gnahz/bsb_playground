@@ -10,3 +10,22 @@ For learning about & playing with MLB stats via PyBaseball API.
 
 Example result:
 ![img_pitch_trajectorys](./assets/pitch_trajectory_sim.png)
+
+`sim_vs_statcast.py` Visualize & compare:
+* trajectories simulated using the physics mentioned above vs.
+* StatCast acceleration values which also considers all those factors and approximates a constant acceleration.
+
+Comparison of physics-based simulated vs. StatCast approximated trajectories in one example (sinker):
+
+![img_sim_v_statcast_1pitch](./assets/hendricks_sinker_statcast_v_sim.png)
+
+Red solid line is StatCast-approximated trajectory. Blue dashed line is simulated trajectory using release location, velocity and spin.
+The actual spot where ball crossed the zone is marked by the black dot.
+
+
+
+Comparison of physics-based simulated vs. StatCast approximated zone spot errors (StatCast `plate_x, plate_z`) as ground truth:
+
+![img_sim_v_statcast_agg](./assets/error_comparison.png)
+
+Needless to say, current physics-based model is ass.

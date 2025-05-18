@@ -19,87 +19,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-# Constants
-dt = 0.001  # time step (s)
-mass = 0.145  # kg
-radius = 0.037  # m
-r = radius
-m = mass
-A = np.pi * r**2  # cross-sectional area (m^2)
-area = np.pi * radius**2  # m²
-rho = 1.225  # kg/m³
-Cd = 0.4  # drag coefficient
-Cl = 0.00021  # lift coefficient scale factor
-g = np.array([0, 0, -9.81])  # gravity vector m/s²
-
-# Convert RPM to rad/s
-def rpm_to_radps(rpm):
-    return rpm * 2 * np.pi / 60
-
-def feetpersec_to_meterspersec(feet_per_sec):
-    return feet_per_sec * 0.3048  # 1 ft = 0.3048 m
-
-def calc_cl(omega, v, radius):
-    """Dynamic calculation of lift coefficient based on spin (rad/s) and velocity (m/s) and radius (m) of the ball."""
-    # Spin parameter S = r * omega / v
-    speed = np.linalg.norm(v)
-    spin_rate = np.linalg.norm(omega)
-    if speed == 0:
-        return 0
-    S = radius * spin_rate / speed
-    return 1.6 * S  # empirical scaling from Nathan et al.
-
-def drag_force(v):
-    """Calculate the drag force on the ball based on velocity (m/s)."""
-    Cd = 0.3  # drag coefficient approx
-    v_mag = np.linalg.norm(v)
-    if v_mag == 0:
-        return np.zeros(3)
-    return -0.5 * rho * A * Cd * v_mag * v
-
-def magnus_force(omega, v):
-    """Calculate the Magnus force on the ball based on spin (rad/s) and velocity (m/s)."""
-    v_mag = np.linalg.norm(v)
-    if v_mag == 0:
-        return np.zeros(3)
-    Cl = calc_cl(omega, v, radius)
-    magnus_dir = np.cross(omega, v)
-    magnus_dir_mag = np.linalg.norm(magnus_dir)
-    if magnus_dir_mag == 0:
-        return np.zeros(3)
-    magnus_unit = magnus_dir / magnus_dir_mag
-    # Full aerodynamic Magnus force
-    F_magnus_mag = 0.5 * rho * A * Cl * v_mag**2
-    return F_magnus_mag * magnus_unit
-
-def simulate_pitch_3d(params, dt=0.001, max_time=1.0):
-    spin_axis = np.array(params["axis"])
-    spin_axis = spin_axis / np.linalg.norm(spin_axis)
-    omega = rpm_to_radps(params["spin_rpm"]) * spin_axis
-    pos = np.array([0, 0, 1.8])  # release height ~1.8m
-    v = feetpersec_to_meterspersec(np.array(params["v0_feetpersec"], dtype=float))
-    #omega_rps = params["spin_rpm"] / 60 * 2 * np.pi  # rpm -> rad/s
-    #omega = np.array(params["axis"]) * omega_rps
-    positions = [pos.copy()]
-    velocities = [v.copy()]
-    times = [0]
-    t = 0
-    
-    while pos[0] < 18.44 and pos[2] > 0 and t < max_time:  # ~60.5 ft to home plate
-        F_drag = drag_force(v)
-        F_magnus = magnus_force(omega, v)
-        F_gravity = m * g
-        
-        a = (F_drag + F_magnus + F_gravity) / m
-        v += a * dt
-        pos += v * dt
-        t += dt
-        
-        positions.append(pos.copy())
-        velocities.append(v.copy())
-        times.append(t)
-        
-    return np.array(positions), np.array(velocities), times
+from utils.pitch_traj_sim import simulate_pitch_3d, MOUND2PLATE_METERS
 
 
 
@@ -127,7 +47,7 @@ ax1.set_title('Side View (Height vs Distance)')
 ax1.set_xlabel('Distance to Mound (m)')
 ax1.set_ylabel('Height (m)')
 ax1.grid(True)
-ax1.set_xlim([0, 18.44])
+ax1.set_xlim([0, MOUND2PLATE_METERS])
 
 # Top view (x vs y)
 ax2 = fig.add_subplot(132)
@@ -135,7 +55,7 @@ ax2.set_title('Top View (Horizontal Break)')
 ax2.set_xlabel('Distance to Mound (m)')
 ax2.set_ylabel('Horizontal Deviation (m)')
 ax2.grid(True)
-ax2.set_xlim([0, 18.44])
+ax2.set_xlim([0, MOUND2PLATE_METERS])
 
 ax3 = fig.add_subplot(133, projection="3d")
 ax3.set_title('3D View')
@@ -143,7 +63,7 @@ ax3.set_xlabel('Distance to Mound (m)')
 ax3.set_ylabel('Horizontal Deviation (m)')
 ax3.set_zlabel('Height (m)')
 ax3.grid(True)
-ax3.set_xlim([0, 18.44])
+ax3.set_xlim([0, MOUND2PLATE_METERS])
 
 for name, params in pitches.items():
     
