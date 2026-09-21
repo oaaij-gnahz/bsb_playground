@@ -32,4 +32,4 @@ Comparison of physics-based simulated vs. StatCast approximated zone spot errors
 
 ![img_sim_v_statcast_agg](./assets/error_comparison.png)
 
-Needless to say, current physics-based model is ass.
+Apparently this model is crude, nonetheless it is a quick and easy introduction to pitch types, their spin axes and movement profile for beginners.
